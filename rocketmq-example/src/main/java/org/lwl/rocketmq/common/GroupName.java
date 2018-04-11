@@ -8,7 +8,8 @@ package org.lwl.rocketmq.common;
 
 
 public enum GroupName {
-    QUICK_START("quick_start_group");
+    QUICK_START_CONSUMER("quick_start_consumer"),
+    QUICK_START_PRODUCER("quick_start_producer");
 
     private String groupName;
 

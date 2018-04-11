@@ -31,8 +31,8 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 ```
 #! /bin/bash
 
-./rocketmq/distribution/target/apache-rocketmq/bin/mqnamesrv -n "localhost:6666" &
-./rocketmq/distribution/target/apache-rocketmq/bin/mqbroker -n "localhost:6666" &
+./rocketmq/distribution/target/apache-rocketmq/bin/mqnamesrv &
+./rocketmq/distribution/target/apache-rocketmq/bin/mqbroker -n "localhost:9876" autoCreateTopicEnable=true &
 ```
 
 - 2.stopRocketMQ.sh
@@ -43,6 +43,12 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 ./rocketmq/rocketmq/distribution/target/apache-rocketmq/bin/mqshutdown broker
 ./rocketmq/rocketmq/distribution/target/apache-rocketmq/bin/mqshutdown namesrv
 ```
+
+##### 1.3.2 部署启动RocketMQ服务器踩过的坑
+- 1.端口:9876，千万不能改，千万不能改，重要的是说2遍
+- 2.启动mqbroker是，务必加上: autoCreateTopicEnable=ture
+- 3.请在maven的pom.xml文件中，加上fastjson的jar包
+- 4.如果还是不行，请看日志，日志位于: ~/logs/rocketmqlogs目录下namesrv.log和broker.log
 
 ## 2. RocketMQ案例学习
 

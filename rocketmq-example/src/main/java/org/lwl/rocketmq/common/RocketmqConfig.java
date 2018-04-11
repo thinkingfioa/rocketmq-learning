@@ -13,8 +13,8 @@ public final class RocketmqConfig {
         throw new IllegalAccessError("can't use constructor");
     }
 
-    private static final int PORT = 6666;
-    private static final String IP = "localhost";
+    private static final int PORT = 9876;
+    private static final String IP = "127.0.0.1";
 
     public static int getPort() {
         return PORT;

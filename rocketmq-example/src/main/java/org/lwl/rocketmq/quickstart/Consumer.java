@@ -23,7 +23,7 @@ import java.util.List;
 public class Consumer {
     public static void main(String [] args) throws InterruptedException, MQClientException {
         // 特定的组，创建一个消费者
-        DefaultMQPushConsumer pushConsumer = new DefaultMQPushConsumer(GroupName.QUICK_START.getGroupName());
+        DefaultMQPushConsumer pushConsumer = new DefaultMQPushConsumer(GroupName.QUICK_START_CONSUMER.getGroupName());
 
         pushConsumer.setNamesrvAddr(RocketmqConfig.getIpAndPort());
 

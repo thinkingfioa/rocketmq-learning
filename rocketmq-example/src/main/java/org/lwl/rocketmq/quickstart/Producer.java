@@ -20,11 +20,10 @@ import org.lwl.rocketmq.common.TopicName;
 public class Producer {
     public static void main(String [] args) throws MQClientException, InterruptedException {
         // 特定的组，创建一个消费者
-        DefaultMQProducer producer = new DefaultMQProducer(GroupName.QUICK_START.getGroupName());
+        DefaultMQProducer producer = new DefaultMQProducer(GroupName.QUICK_START_PRODUCER.getGroupName());
         producer.setNamesrvAddr(RocketmqConfig.getIpAndPort());
 
         producer.start();
-
 
         // produce message
         for(int i = 0; i<1000; i++) {
