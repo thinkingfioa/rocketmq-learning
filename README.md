@@ -55,6 +55,10 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 ### 2.1 quickstart
 RocketMQ最简单的消息生产者(Producer)和消息消费者(Consumer)。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/quickstart)
 
+### 2.2 quicketstart 案例提醒点
+ - 1.创建Consumer和Producer时候，都会指定Group的名字，可以可以不必相同。只是标记Consumer和Producer属于哪个组，和消息传输没有关系
+ - 2.消息的标记是通过: Topic和Tag共同指定。所以Producer和Consumer生成消息和消费消息时，需要指定消息的Topic和Tag
+
 ## 3. RocketMQ源代码分析
 
 # 参考文档

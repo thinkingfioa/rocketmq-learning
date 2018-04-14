@@ -30,7 +30,6 @@ public class Consumer {
         pushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 
         //订阅Topic
-
         pushConsumer.subscribe(TopicName.TOPIC_TEST.getTopicName(), "*");
 
         // 注册回调函数，MessageListennerConcurrently处理无序消息
