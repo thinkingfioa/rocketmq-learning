@@ -9,7 +9,8 @@ package org.lwl.rocketmq.common;
 
 public enum GroupName {
     QUICK_START_CONSUMER("quick_start_consumer"),
-    QUICK_START_PRODUCER("quick_start_producer");
+    QUICK_START_PRODUCER("quick_start_producer"),
+    BATCH_PRODUCER_GROUP_NAME("batch_producer_group_name");
 
     private String groupName;
 

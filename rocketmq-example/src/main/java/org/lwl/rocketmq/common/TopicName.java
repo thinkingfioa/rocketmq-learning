@@ -8,7 +8,8 @@ package org.lwl.rocketmq.common;
 
 
 public enum TopicName {
-    TOPIC_TEST("topic_test");
+    TOPIC_TEST("topic_test"),
+    BATCH_TEST("batch_test");
 
     private String topicName;
 
