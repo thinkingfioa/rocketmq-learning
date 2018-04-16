@@ -11,6 +11,7 @@ import org.lwl.rocketmq.common.TopicName;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author thinking_fioa
@@ -30,7 +31,7 @@ public class SplitBatchProducer {
         List<Message> messageList = new ArrayList<Message>();
 
         for(int i =0; i< 100 * 1000; i++) {
-            messageList.add(new Message(TopicName.BATCH_TEST.getTopicName(), TagName.TAG_TEST.getTagName()
+            messageList.add(new Message(TopicName.BATCH_TEST.getTopicName(), TagName.TAG_TEST.getTagName(),
             "OrderId"+i, ("Hello world "+i).getBytes()));
         }
 
@@ -61,7 +62,32 @@ public class SplitBatchProducer {
 
         @Override
         public List<Message> next() {
+            int nextIndex = currIndex;
+            int currSizeLimit = 0;
+            for(; nextIndex < messages.size(); nextIndex++) {
+                Message oneMessage = messages.get(nextIndex);
+                int tempSize = oneMessage.getTopic().length() + oneMessage.getBody().length;
+                Map<String, String> properties = oneMessage.getProperties();
+                for(Map.Entry<String, String> entry: properties.entrySet()) {
+                    tempSize += entry.getKey().length() + entry.getValue().length();
+                }
+                if(tempSize > sizeLimit) {
+                    if(nextIndex - currSizeLimit ==0) {
+                        nextIndex ++;
+                    }
+                    break;
+                }
 
+                if(tempSize + currSizeLimit > sizeLimit) {
+                    break;
+                } else {
+                    currSizeLimit += tempSize;
+                }
+            }
+
+            List<Message> subList = messages.subList(currIndex, nextIndex);
+            currIndex = nextIndex;
+            return subList;
         }
 
         @Override
