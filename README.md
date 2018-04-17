@@ -71,6 +71,47 @@ RocketMQ支持批生产消息，一次性发送多条消息。[参考代码](htt
 - 1.SimpleBatchProducer类指定单次发送的消息集合大小必须 < 1M，但这个要求经常无法满足。
 - 2.SplitBatchProducer无需担心消息集合大小，采用分割方式，将大消息集合拆分成小集合，然后发送
 
+##### 代码:
+- 1.使用类ListSplitter来拆分大消息集合，其属性sizeLimit定义单次发送最多的字节数
+- 2.实现了迭代器: Iterator<List<Message>>。方便遍历
+
+```html
+// 将多条消息，拆分进入小集合中
+ListSplitter splitter = new ListSplitter(messageList);
+while(splitter.hasNext()) {
+    List<Message> subList = splitter.next();
+    producer.send(subList);
+}
+
+static class ListSplitter implements Iterator<List<Message>> {
+    // 单次发送最大字节数
+    private int sizeLimit = 1000 * 1000;
+    private final List<Message> messages;
+    private int currIndex;
+
+    public ListSplitter(List<Message> messages) {
+        this.messages = messages;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return currIndex < messages.size();
+    }
+
+    @Override
+    public List<Message> next() {
+       ....    
+    }
+
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException("Not allowed to remove");
+    }
+}
+```
+
+### 2.3 ordermessage
+
 
 ## 3. RocketMQ源代码分析
 

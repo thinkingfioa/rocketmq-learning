@@ -41,7 +41,6 @@ public class SplitBatchProducer {
             List<Message> subList = splitter.next();
             producer.send(subList);
         }
-
     }
 
     static class ListSplitter implements Iterator<List<Message>> {
@@ -71,6 +70,8 @@ public class SplitBatchProducer {
                 for(Map.Entry<String, String> entry: properties.entrySet()) {
                     tempSize += entry.getKey().length() + entry.getValue().length();
                 }
+                // 稍微放大一点
+                tempSize += 20;
                 if(tempSize > sizeLimit) {
                     if(nextIndex - currSizeLimit ==0) {
                         nextIndex ++;
