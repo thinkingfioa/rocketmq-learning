@@ -50,6 +50,11 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 - 3.请在maven的pom.xml文件中，加上fastjson的jar包
 - 4.如果还是不行，请看日志，日志位于: ~/logs/rocketmqlogs目录下namesrv.log和broker.log
 
+##### 1.3.3 RocketRQ命令
+- 1.查看所有topic: sh mqadmin topicList -n 127.0.0.1:9876
+- 2.删除topic: sh mqadmin deleteTopic -n 127.0.0.1:9876 -c DefaultCluster -t topicName
+- 2.查看topicName的详细信息: sh mqadmin topicstatus -n 127.0.0.1:9876 -t [topicName]
+
 ## 2. RocketMQ案例学习
 案例项目地址: [路径](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq)
 
@@ -111,10 +116,36 @@ static class ListSplitter implements Iterator<List<Message>> {
 ```
 
 ### 2.3 ordermessage
+ordermessage案例是RocketMQ的一个强势特性案例:顺序消费消息。当多个消息消费者时，往往无法保证消息的顺序问题。ordermessage案例中，利用RocketMQ来实现顺序消费消息。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/ordermessage)
 
+
+#### 2.3.1 Producer
+使用类MessageQueueSelector实现相同的orderId号进入同一个队列queue。这样，保证先发送的消息，先被处理
+
+##### 代码:
+```java
+// 订单的Producer发送消息需要注册回调函数
+SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
+    int orderId=0;
+    @Override
+    public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) 	{
+        // arg就是orderId，其值与其相等
+        Integer id = (Integer) arg;
+        int index = id % mqs.size();
+        return mqs.get(index);
+    }
+}, orderId);
+```
+
+#### 2.3.2 Consumer
+-1.消费者使用类MessageListenerOrderly有序拉取队列queue中的数据。代码参见案例
+-2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
+
+### 2.4 operation
 
 ## 3. RocketMQ源代码分析
 
 # 参考文档
 - 1.[《RocketMQ 消息队列单机部署及使用》](https://blog.csdn.net/loongshawn/article/details/51086876)
 - 2.[RocketMQ部署文档](https://rocketmq.apache.org/docs/quick-start/)
+- 3.[RocketMQ解决消息顺序和重复](https://blog.csdn.net/lovesomnus/article/details/51776942)
