@@ -29,31 +29,20 @@ public class Consumer {
         consumer.setNamesrvAddr(RocketmqConfig.getIpAndPort());
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
 
-        consumer.subscribe(TopicName.TOPIC_TEST.getTopicName(), "TagA||TagB||TabC");
+        consumer.subscribe(TopicName.TOPIC_TEST.getTopicName(), "TagA || TagB || TagC");
 
         consumer.registerMessageListener(new MessageListenerOrderly() {
             AtomicLong consumeTimes = new AtomicLong(0);
 
             @Override
             public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
-                context.setAutoCommit(false);
-                System.out.printf("Receive New Messages: %s %d%n", Thread.currentThread().getName(), msgs.size());
-                System.out.printf("+++++++++++++++++%n");
-                for(int i = 0; i<msgs.size(); i++) {
-                    System.out.printf("%s %n", msgs.get(i).getKeys().toString());
+                context.setAutoCommit(true);
+                System.out.printf("Receive New Messages: %s size: %d%n", Thread.currentThread().getName(), msgs.size());
+
+                for(MessageExt msg : msgs) {
+                    System.out.println(msg+", content: "+new String(msg.getBody()));
                 }
-                System.out.printf("-----------------%n");
                 this.consumeTimes.incrementAndGet();
-                if((this.consumeTimes.get() % 2) ==0){
-                    return ConsumeOrderlyStatus.SUCCESS;
-                } else if((this.consumeTimes.get() % 3) == 0) {
-                    return ConsumeOrderlyStatus.ROLLBACK;
-                } else if((this.consumeTimes.get() % 4) == 0){
-                    return ConsumeOrderlyStatus.COMMIT;
-                } else if((this.consumeTimes.get() % 5) == 0) {
-                    context.setSuspendCurrentQueueTimeMillis(200);
-                    return ConsumeOrderlyStatus.SUSPEND_CURRENT_QUEUE_A_MOMENT;
-                }
 
                 return ConsumeOrderlyStatus.SUCCESS;
             }
