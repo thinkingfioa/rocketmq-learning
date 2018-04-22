@@ -138,10 +138,67 @@ SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
 ```
 
 #### 2.3.2 Consumer
--1.消费者使用类MessageListenerOrderly有序拉取队列queue中的数据。代码参见案例
--2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
+- 1.消费者使用类MessageListenerOrderly有序拉取队列queue中的数据。代码参见案例
+- 2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
 
 ### 2.4 operation
+operation案例，讲解的是如何通过命令行输入的参数，比如输入group, topic等信息传给Producer和Consumer
+
+#### 2.4.1 Commons CLI理解
+Commons CLI是Apache为用户提供一个解释命令行解释的API。分为3个步骤:定义、解释和询问交互。
+
+##### Option的参数解释
+- 1.第一个参数: 参数的简单形式
+- 2.第二个参数: 参数的复杂形式
+- 3.第三个参数: 是否需要额外的输入
+- 4.第四个参数: 对参数的描述信息
+
+##### 代码:
+```Java
+final Options options = new Options();
+// 1. Commons CLI 定义
+// 第一个参数: 参数的简单形式
+// 第二个参数: 参数的复杂形式
+// 第三个参数: 是否需要额外的输入
+// 第四个参数: 对参数的描述信息
+Option opt = new Option("h", "help", false, "Print help");
+// 终端该参数必须输入
+opt.setRequired(false);
+options.addOption(opt);
+    
+// 2. Commons CLI 解析
+PosixParser parser = new PosixParser();
+HelpFormatter hf = new HelpFormatter();
+hf.setWidth(110);
+CommandLine commandLine = null;
+try {
+    commandLine = parser.parse(options, args);
+    // 3. Commons CLI 询问交互
+    if (commandLine.hasOption('h')) {
+        hf.printHelp("producer", options, true);
+    }
+} catch (ParseException e) {
+    ...
+}
+return commandLine;
+```
+
+##### Maven代码依赖:
+```xml
+// Maven依赖
+<dependency>
+	<groupId>commons-cli</groupId>
+	<artifactId>commons-cli</artifactId>
+	<version>1.2</version>
+</dependency>
+```
+
+#### 2.4.1 Producer
+- 1.setInstanceName(...) - 同一个Jvm，不同的Producer需要往不同的RocketMQ集群发送消息，需要设置不同的instanceName。
+- 2.commandLine.getOptionValue('c') - 从Commons CLI中取得用户输入的参数
+
+#### 2.4.2 Consumer
+Consumer中的样例代码存在少许难以理解的地方。已作批示和修改。可直接运行起来
 
 ## 3. RocketMQ源代码分析
 
@@ -149,3 +206,4 @@ SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
 - 1.[《RocketMQ 消息队列单机部署及使用》](https://blog.csdn.net/loongshawn/article/details/51086876)
 - 2.[RocketMQ部署文档](https://rocketmq.apache.org/docs/quick-start/)
 - 3.[RocketMQ解决消息顺序和重复](https://blog.csdn.net/lovesomnus/article/details/51776942)
+- 4.[Commons CLI](https://www.cnblogs.com/xing901022/archive/2016/06/22/5608823.html)
