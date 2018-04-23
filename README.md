@@ -142,7 +142,8 @@ SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
 - 2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
 
 ### 2.4 operation
-operation案例，讲解的是如何通过命令行输入的参数，比如输入group, topic等信息传给Producer和Consumer
+operation案例，讲解的是如何通过命令行输入的参数，比如输入group, topic等信息传给Producer和Consumer。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/operation)
+
 
 #### 2.4.1 Commons CLI理解
 Commons CLI是Apache为用户提供一个解释命令行解释的API。分为3个步骤:定义、解释和询问交互。
@@ -199,6 +200,9 @@ return commandLine;
 
 #### 2.4.2 Consumer
 Consumer中的样例代码存在少许难以理解的地方。已作批示和修改。可直接运行起来
+
+### 2.5 openmessaging
+
 
 ## 3. RocketMQ源代码分析
 
