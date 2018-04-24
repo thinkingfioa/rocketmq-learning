@@ -8,24 +8,24 @@ RocketMQ学习版本：4.2.0
 ```
 ---
 
-## 1.为什么要读RocketMQ源码?
+# 1.为什么要读RocketMQ源码?
 随着分布式应用的需求，中间件已经成为重点研究领域。中间件可以轻松帮助实现分布式系统。RocketMQ出自于阿里集团，是众多中间件中非常优秀项目。通过源码学习，可以学到优秀的编码风格、编程技术和设计理念。
 
-### 1.1 RocketMQ特点
+## 1.1 RocketMQ特点
 - 1.支持严格的消息顺序
 - 2.支持Topic与Queue两种模式
 - 3.亿级消息堆积能力
 - 4.比较友好的分布式特性
 - 5.同时支持Push与Pull方式消费信息
 
-### 1.2 RocketMQ服务器
+## 1.2 RocketMQ服务器
 RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ除了消息生产者和消息消费者外，还需要单独起一个RocketMQ服务器，充当Master节点。
 ![](https://img-blog.csdn.net/20160408142513136)
 
-### 1.3 部署RocketMQ服务器
+## 1.3 部署RocketMQ服务器
 参考文档: [RocketMQ部署文档](https://rocketmq.apache.org/docs/quick-start/)
 
-##### 1.3.1 通过脚本启动
+### 1.3.1 通过脚本启动
 - 1.startRocketMQ.sh
 
 ```
@@ -44,35 +44,36 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 ./rocketmq/rocketmq/distribution/target/apache-rocketmq/bin/mqshutdown namesrv
 ```
 
-##### 1.3.2 部署启动RocketMQ服务器踩过的坑
+### 1.3.2 部署启动RocketMQ服务器踩过的坑
 - 1.端口:9876，千万不能改，千万不能改，重要的是说2遍
 - 2.启动mqbroker是，务必加上: autoCreateTopicEnable=ture
 - 3.请在maven的pom.xml文件中，加上fastjson的jar包
 - 4.如果还是不行，请看日志，日志位于: ~/logs/rocketmqlogs目录下namesrv.log和broker.log
 
-##### 1.3.3 RocketRQ命令
+### 1.3.3 RocketRQ命令
 - 1.查看所有topic: sh mqadmin topicList -n 127.0.0.1:9876
-- 2.删除topic: sh mqadmin deleteTopic -n 127.0.0.1:9876 -c DefaultCluster -t topicName
-- 2.查看topicName的详细信息: sh mqadmin topicstatus -n 127.0.0.1:9876 -t [topicName]
+- 2.删除topic: sh mqadmin deleteTopic -n 127.0.0.1:9876 -c DefaultCluster -t [topicName]
+- 3.查看topicName的详细信息: sh mqadmin topicstatus -n 127.0.0.1:9876 -t [topicName]
+- 4.新建一个topic: sh mqadmin updateTopic -n 127.0.0.1:9876 -c DefaultCluster -t [topicName]
 
-## 2. RocketMQ案例学习
+# 2. RocketMQ案例学习
 案例项目地址: [路径](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq)
 
-### 2.1 quickstart
+## 2.1 quickstart
 RocketMQ最简单的消息生产者(Producer)和消息消费者(Consumer)。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/quickstart)
 
-#### 2.1.1 quicketstart 案例提醒点
+### 2.1.1 quicketstart 案例提醒点
  - 1.创建Consumer和Producer时候，都会指定Group的名字，可以不必相同。只是标记Consumer和Producer属于哪个组，和消息传输没有关系
  - 2.消息的标记是通过: Topic和Tag共同指定。所以Producer和Consumer生成消息和消费消息时，需要指定消息的Topic和Tag
 
-### 2.2 batch
+## 2.2 batch
 RocketMQ支持批生产消息，一次性发送多条消息。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/batch)
 
-#### 2.2.1 SimpleBatchProducer
+### 2.2.1 SimpleBatchProducer
 - 1.单词发送消息< 1M，一次性发送多条消息
 - 2.使用批发送消息，请务必保证消息的topic相同
 
-#### 2.2.2 SplitBatchProducer(实用)
+### 2.2.2 SplitBatchProducer(实用)
 - 1.SimpleBatchProducer类指定单次发送的消息集合大小必须 < 1M，但这个要求经常无法满足。
 - 2.SplitBatchProducer无需担心消息集合大小，采用分割方式，将大消息集合拆分成小集合，然后发送
 
@@ -115,11 +116,11 @@ static class ListSplitter implements Iterator<List<Message>> {
 }
 ```
 
-### 2.3 ordermessage
+## 2.3 ordermessage
 ordermessage案例是RocketMQ的一个强势特性案例:顺序消费消息。当多个消息消费者时，往往无法保证消息的顺序问题。ordermessage案例中，利用RocketMQ来实现顺序消费消息。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/ordermessage)
 
 
-#### 2.3.1 Producer
+### 2.3.1 Producer
 使用类MessageQueueSelector实现相同的orderId号进入同一个队列queue。这样，保证先发送的消息，先被处理
 
 ##### 代码:
@@ -137,15 +138,15 @@ SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
 }, orderId);
 ```
 
-#### 2.3.2 Consumer
+### 2.3.2 Consumer
 - 1.消费者使用类MessageListenerOrderly有序拉取队列queue中的数据。代码参见案例
 - 2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
 
-### 2.4 operation
+## 2.4 operation
 operation案例，讲解的是如何通过命令行输入的参数，比如输入group, topic等信息传给Producer和Consumer。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/operation)
 
 
-#### 2.4.1 Commons CLI理解
+### 2.4.1 Commons CLI理解
 Commons CLI是Apache为用户提供一个解释命令行解释的API。分为3个步骤:定义、解释和询问交互。
 
 ##### Option的参数解释
@@ -194,17 +195,21 @@ return commandLine;
 </dependency>
 ```
 
-#### 2.4.1 Producer
+### 2.4.1 Producer
 - 1.setInstanceName(...) - 同一个Jvm，不同的Producer需要往不同的RocketMQ集群发送消息，需要设置不同的instanceName。
 - 2.commandLine.getOptionValue('c') - 从Commons CLI中取得用户输入的参数
 
-#### 2.4.2 Consumer
+### 2.4.2 Consumer
 Consumer中的样例代码存在少许难以理解的地方。已作批示和修改。可直接运行起来
 
-### 2.5 openmessaging
+## 2.5 openmessaging
+- 1.openmessaging不是第三方中间件，不是第三方中间件，不是第三方中间件。重要的是说3遍。
+- 2.openmessaging是一个力图构建分布式消息分发等开放标准。openmessaging案例中，实现了基于RocketMQ来实现这个开放标准
+- 3.可以运行的[代码案例](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/openmessaging)
 
+## 2.6 
 
-## 3. RocketMQ源代码分析
+# 3. RocketMQ源代码分析
 
 # 参考文档
 - 1.[《RocketMQ 消息队列单机部署及使用》](https://blog.csdn.net/loongshawn/article/details/51086876)

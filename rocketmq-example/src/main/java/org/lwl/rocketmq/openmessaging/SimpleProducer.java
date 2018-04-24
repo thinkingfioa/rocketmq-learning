@@ -1,6 +1,12 @@
 package org.lwl.rocketmq.openmessaging;
 
-import io.openmessaging.*;
+import io.openmessaging.Message;
+import io.openmessaging.MessagingAccessPoint;
+import io.openmessaging.MessagingAccessPointFactory;
+import io.openmessaging.Producer;
+import io.openmessaging.Promise;
+import io.openmessaging.PromiseListener;
+import io.openmessaging.SendResult;
 import org.lwl.rocketmq.common.TopicName;
 
 import java.nio.charset.Charset;
@@ -15,11 +21,14 @@ import java.nio.charset.Charset;
 public class SimpleProducer {
     public static void main(String [] args) {
         final MessagingAccessPoint messagingAccessPoint = MessagingAccessPointFactory
-                .getMessagingAccessPoint("openmessaging:rocketmq://IP1:9876,IP2:9876/namespace");
+                .getMessagingAccessPoint("openmessaging:rocketmq://127.0.0.1:9876/namespace");
 
         final Producer producer = messagingAccessPoint.createProducer();
-        messagingAccessPoint.startup();
 
+        messagingAccessPoint.startup();
+        System.out.printf("MessagingAccessPoint start Ok%n");
+
+        producer.startup();
         System.out.printf("Producer startup OK%n");
 
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -31,13 +40,13 @@ public class SimpleProducer {
         }));
 
         {
-            Message message = producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY".getBytes(Charset.forName("UTF-8")));
+            Message message = producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY_1".getBytes(Charset.forName("UTF-8")));
             SendResult sendResult = producer.send(message);
             System.out.printf("Send async message OK, msgId: %s%n", sendResult.messageId());
         }
 
         {
-            Message asynMessage = producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY".getBytes(Charset.forName("UTF-8")));
+            Message asynMessage = producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY_2".getBytes(Charset.forName("UTF-8")));
             final Promise<SendResult> result = producer.sendAsync(asynMessage);
             result.addListener(new PromiseListener<SendResult>() {
                 @Override
@@ -53,7 +62,7 @@ public class SimpleProducer {
         }
 
         {
-            producer.sendOneway(producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY".getBytes(Charset.forName("UTF-8"))));
+            producer.sendOneway(producer.createBytesMessageToTopic(TopicName.OPEN_MESSAGING.getTopicName(), "OMS_HELLO_BODY_3".getBytes(Charset.forName("UTF-8"))));
             System.out.printf("Send oneway message OK%n");
 
         }

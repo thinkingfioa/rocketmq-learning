@@ -47,6 +47,11 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-openmessaging</artifactId>
+            <version>4.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>
