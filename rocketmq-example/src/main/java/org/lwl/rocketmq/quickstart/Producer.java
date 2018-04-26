@@ -18,15 +18,15 @@ import org.lwl.rocketmq.common.TopicName;
 
 
 public class Producer {
+
     public static void main(String [] args) throws MQClientException, InterruptedException {
         // 特定的组，创建一个消费者
         DefaultMQProducer producer = new DefaultMQProducer(GroupName.QUICK_START_PRODUCER.getGroupName());
         producer.setNamesrvAddr(RocketmqConfig.getIpAndPort());
-
         producer.start();
 
         // produce message
-        for(int i = 0; i<1000; i++) {
+        for(int i = 0; i<20; i++) {
             try {
                 String content = "thinking_fioa"+i;
                 Message msg = new Message(TopicName.TOPIC_TEST.getTopicName(),

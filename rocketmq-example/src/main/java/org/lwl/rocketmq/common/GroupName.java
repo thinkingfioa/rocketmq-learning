@@ -11,7 +11,8 @@ public enum GroupName {
     QUICK_START_CONSUMER("quick_start_consumer"),
     QUICK_START_PRODUCER("quick_start_producer"),
     BATCH_PRODUCER_GROUP_NAME("batch_producer_group_name"),
-    ORDER_MESSAGE("order_message");
+    ORDER_MESSAGE("order_message"),
+    BROADCAST("broadcast");
 
     private String groupName;
 
