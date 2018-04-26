@@ -57,25 +57,28 @@ RocketMQ不同于ZeroMQ，ZeroMQ是一个端到端的消息中间件。RocketMQ�
 - 4.新建一个topic: sh mqadmin updateTopic -n 127.0.0.1:9876 -c DefaultCluster -t [topicName]
 
 # 2. RocketMQ案例学习
-案例项目地址: [路径](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq)
+第2章仔细分析RocketMQ源码中的example提供的多个案例。对每个案例进行分析和学习，同时普及一些RocketMQ中的简单概念和使用方式
 
-## 2.1 quickstart
+- 1.学习过程，尽量避免大篇幅贴代码。所有代码都能在我的GitHub中找到。重点是理解案例，进而掌握
+- 2.案例项目地址: [路径](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq)
+
+## 2.1 quickstart(快速启动)
 RocketMQ最简单的消息生产者(Producer)和消息消费者(Consumer)。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/quickstart)
 
 ### 2.1.1 quicketstart 案例提醒点
  - 1.创建Consumer和Producer时候，都会指定Group的名字，可以不必相同。只是标记Consumer和Producer属于哪个组，和消息传输没有关系
  - 2.消息的标记是通过: Topic和Tag共同指定。所以Producer和Consumer生成消息和消费消息时，需要指定消息的Topic和Tag
 
-## 2.2 batch
-RocketMQ支持批生产消息，一次性发送多条消息。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/batch)
+## 2.2 batch(批生产消息)
+批生产消息，能够大大加快消息生产速度。RocketMQ支持批生产消息，一次性发送多条消息。batch案例[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/batch)
 
 ### 2.2.1 SimpleBatchProducer
-- 1.单词发送消息< 1M，一次性发送多条消息
+- 1.一次性发送多条消息男，单次发送消息大小 < 1M
 - 2.使用批发送消息，请务必保证消息的topic相同
 
 ### 2.2.2 SplitBatchProducer(实用)
-- 1.SimpleBatchProducer类指定单次发送的消息集合大小必须 < 1M，但这个要求经常无法满足。
-- 2.SplitBatchProducer无需担心消息集合大小，采用分割方式，将大消息集合拆分成小集合，然后发送
+- 1.SimpleBatchProducer类指定单次发送的消息集合大小 < 1M，但这个要求经常无法满足，所以需要拆包发送。
+- 2.SplitBatchProducer采用分割方式，将大消息集合拆分成小集合，然后发送。无需担心消息集合大小
 
 ##### 代码:
 - 1.使用类ListSplitter来拆分大消息集合，其属性sizeLimit定义单次发送最多的字节数
@@ -116,7 +119,7 @@ static class ListSplitter implements Iterator<List<Message>> {
 }
 ```
 
-## 2.3 ordermessage
+## 2.3 ordermessage(顺序消费消息）
 ordermessage案例是RocketMQ的一个强势特性案例:顺序消费消息。当多个消息消费者时，往往无法保证消息的顺序问题。ordermessage案例中，利用RocketMQ来实现顺序消费消息。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/ordermessage)
 
 
@@ -142,7 +145,7 @@ SendResult sendResult = producer.send(msg, new MessageQueueSelector() {
 - 1.消费者使用类MessageListenerOrderly有序拉取队列queue中的数据。代码参见案例
 - 2.提醒源代码中: 请将autoCommit设置为true，否则每次都会从头开始重复消费。
 
-## 2.4 operation
+## 2.4 operation(接入命令行)
 operation案例，讲解的是如何通过命令行输入的参数，比如输入group, topic等信息传给Producer和Consumer。[参考代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/operation)
 
 
@@ -202,12 +205,46 @@ return commandLine;
 ### 2.4.2 Consumer
 Consumer中的样例代码存在少许难以理解的地方。已作批示和修改。可直接运行起来
 
-## 2.5 openmessaging
+## 2.5 openmessaging(分布式消息开放标准)
 - 1.openmessaging不是第三方中间件，不是第三方中间件，不是第三方中间件。重要的是说3遍。
 - 2.openmessaging是一个力图构建分布式消息分发等开放标准。openmessaging案例中，实现了基于RocketMQ来实现这个开放标准
 - 3.可以运行的[代码案例](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/openmessaging)
 
-## 2.6 
+## 2.6 broadcast(RocketMQ消费模式)
+RocketMQ消费模式有两种: 集群消费和广播消费。分别用来定义单条消息可以被多个相同的GroupName的消费，还是只能被其中一个消费。
+
+##### RocketMQ源代码:
+```
+ublic enum MessageModel {
+    /**
+     * broadcast
+     */
+    BROADCASTING("BROADCASTING"),
+    /**
+     * clustering
+     */
+    CLUSTERING("CLUSTERING");
+    ...
+}
+```
+
+### 2.6.1  集群消费和广播消费不同点
+- 1.集群消费: 单条消息只会被相同的GroupName中一个Consumer消费(不考虑特别情况下重复消费)
+- 2.广播消费：单条消息会被相同的GroupName中每一个声明广播消费的Consumer都消费一次。
+- **3.提醒:** 如果两个消费者的GroupName不同，对于单条消息，都会消费一次，即使是集群消费
+- 4.可以使用案例中PushConsumer和PushConsumer2来测试比较，帮助记忆和理解
+- 5.参考的[代码案例](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/broadcast)
+
+
+### 2.6.2 集群消费
+- 1.多个Consumer在创建时，都被赋予了一个GroupName。那么单条消息，只会被其中一个Consumer中消费
+- 2.一个Producer发送一个消息进入RocketMQ，如果多个消费者GroupName不同，都会接收到这条消息。如果多个Consumer的GroupName相同，则只会由其中一个Consumer消费该条消息
+- 3.默认情况下是：集群消费
+
+### 2.6.3 广播消费
+消息会发送给Consumer Group中的每一个消费者。声明为Broadcast的每个消费者都会处理该条消息。比如，案例中的PushConsumer和PushConsumer2都会接收到Producer发来的每一条消息消息.
+
+## 2.7 benchmark
 
 # 3. RocketMQ源代码分析
 
