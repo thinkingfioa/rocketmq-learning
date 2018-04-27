@@ -10,7 +10,8 @@ package org.lwl.rocketmq.common;
 public enum TopicName {
     TOPIC_TEST("topic_test"),
     BATCH_TEST("batch_test"),
-    OPEN_MESSAGING("OMS_HELLO_TOPIC");
+    OPEN_MESSAGING("OMS_HELLO_TOPIC"),
+    BENCHMARK("benchmark");
 
     private String topicName;
 
