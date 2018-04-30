@@ -8,8 +8,10 @@ import org.apache.rocketmq.srvutil.ServerUtil;
 import org.lwl.rocketmq.common.CustomThreadFactory;
 import org.lwl.rocketmq.common.TopicName;
 
+import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Consumer {
     private static final ScheduledExecutorService scheduleServer
-            = new ScheduledThreadPoolExecutor(3, new CustomThreadFactory("BenchmarkThread"));
+            = new ScheduledThreadPoolExecutor(3, new CustomThreadFactory("BenchmarkThread", true));
 
     public static void main(String [] args) {
         Options options = ServerUtil.buildCommandlineOptions(new Options());
@@ -40,6 +42,45 @@ public class Consumer {
         System.out.printf("topic: %s, groupName: %s, filterType: %s, expression: %s%n", topic, groupName, filterType, expression);
 
         final StatsBenchmarkConsumer statsBenchmarkConsumer = new StatsBenchmarkConsumer();
+
+        final LinkedList<Long []> snapshortList = new LinkedList<Long []>();
+
+        scheduleServer.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                snapshortList.addLast(statsBenchmarkConsumer.createSnapshot());
+
+                if(snapshortList.size() > 10) {
+                    snapshortList.removeFirst();
+                }
+            }
+        }, 1000, 1000, TimeUnit.MILLISECONDS);
+
+        scheduleServer.scheduleAtFixedRate(new Runnable() {
+            private void printStats() {
+                if(snapshortList.size() >=10) {
+                    Long [] begin = snapshortList.getFirst();
+                    Long [] end = snapshortList.getLast();
+
+                    final long consumeTps =
+                            (long) (((end[1] - begin[1]) / (double) (end[0] - begin[0])) * 1000L);
+                    final double averageB2CRT = (end[2] - begin[2]) / (double) (end[1] - begin[1]);
+                    final double averageS2CRT = (end[3] - begin[3]) / (double) (end[1] - begin[1]);
+
+                    System.out.printf("Consume TPS: %d Average(B2C) RT: %7.3f Average(S2C) RT: %7.3f MAX(B2C) RT: %d MAX(S2C) RT: %d%n",
+                            consumeTps, averageB2CRT, averageS2CRT, end[4], end[5]
+                    );
+                }
+            }
+            @Override
+            public void run() {
+                try {
+                    this.printStats();
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 10000, 10000, TimeUnit.MILLISECONDS);
 
     }
 
