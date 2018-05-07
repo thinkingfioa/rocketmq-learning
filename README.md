@@ -244,7 +244,85 @@ ublic enum MessageModel {
 ### 2.6.3 广播消费
 消息会发送给Consumer Group中的每一个消费者。声明为Broadcast的每个消费者都会处理该条消息。比如，案例中的PushConsumer和PushConsumer2都会接收到Producer发来的每一条消息消息.
 
-## 2.7 benchmark
+## 2.7 benchmark(基准测试)
+banchmark是一个批测试案例。定义多个指标，来判断测试结果
+
+### 2.7.1 Consumer
+- 1.利用Scheduled定时机制，定时获取统计数据。这是一种非常普通的压力测试数据
+- 2.Consumer统计的指标有：消息总量，创建到消费时延，存储到消费时延，最大值等。
+- 3.问: MessageSelector.byTag和bySql区别?(解释)
+
+##### 代码:
+```java
+// 1秒获取一次数据
+scheduleConsumer.scheduleAtFixedRate(new Runnable() {
+    @Override
+    public void run() {
+        snapshotList.addLast(statsBenchmarkConsumer.createSnapshot());
+
+        if(snapshotList.size() > 10) {
+            snapshotList.removeFirst();
+        }
+    }
+}, 1000, 1000, TimeUnit.MILLISECONDS);
+
+scheduleConsumer.scheduleAtFixedRate(new Runnable() {
+    private void printStats() {
+        if(snapshotList.size() >=10) {
+            Long [] begin = snapshotList.getFirst();
+            Long [] end = snapshotList.getLast();
+            ...
+        }
+    }
+    @Override
+    public void run() {
+        try {
+            this.printStats();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+}, 10000, 10000, TimeUnit.MILLISECONDS);
+
+```
+
+### 2.7.2 Producer
+- 1.Producer统计指标方法与Consumer完全类似
+- 2.Producer中利用producer.send(msg)方法抛出的异常来统计错误类型，可以参考错误类型
+
+##### 代码:
+```java
+static class StatsBenchmarkProducer {
+    private final AtomicLong sendRequestSuccessCount = new AtomicLong(0L);
+
+    private final AtomicLong sendRequestFailedCount = new AtomicLong(0L);
+
+    private final AtomicLong receiveResponseSuccessCount = new AtomicLong(0L);
+
+    private final AtomicLong receiveResponseFailedCount = new AtomicLong(0L);
+
+    private final AtomicLong sendMessageSuccessTimeTotal = new AtomicLong(0L);
+
+    private final AtomicLong sendMessageMaxRT = new AtomicLong(0L);
+
+    public Long[] createSnapshot() {
+        Long [] snap = new Long[] {
+                System.currentTimeMillis(),
+                this.sendRequestSuccessCount.get(),
+                this.sendRequestFailedCount.get(),
+                this.receiveResponseSuccessCount.get(),
+                this.receiveResponseFailedCount.get(),
+                this.sendMessageSuccessTimeTotal.get(),
+        };
+
+        return snap;
+    }
+
+    // getXXX()方法
+}
+```
+
+### 2.7.3 
 
 # 3. RocketMQ源代码分析
 
