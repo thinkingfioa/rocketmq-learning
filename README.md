@@ -245,7 +245,7 @@ ublic enum MessageModel {
 消息会发送给Consumer Group中的每一个消费者。声明为Broadcast的每个消费者都会处理该条消息。比如，案例中的PushConsumer和PushConsumer2都会接收到Producer发来的每一条消息消息.
 
 ## 2.7 benchmark(基准测试)
-banchmark是一个批测试案例。定义多个指标，来判断测试结果
+banchmark是一个批测试案例。定义多个指标，来判断测试结果。 [参考的代码](https://github.com/thinkingfioa/rocketmq-learning/tree/master/rocketmq-example/src/main/java/org/lwl/rocketmq/benchmark)
 
 ### 2.7.1 Consumer
 - 1.利用Scheduled定时机制，定时获取统计数据。这是一种非常普通的压力测试数据
